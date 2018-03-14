@@ -222,6 +222,7 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
         mhue = (127 - MID_VALUE) * 1.0f / 255 * 180;
         msaturation = 127 * 1.0f / MID_VALUE;
         mlum = 1;
+        mHorizontalScrollView.setVisibility(View.GONE);
     }
 
     @Override
@@ -231,9 +232,6 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
         multiple_actions_left.collapse();
         ViewGroup.LayoutParams layoutParams2 = img_screen.getLayoutParams();
         layoutParams2.width = screenWidth + 380;
-        //layoutParams2.width = layoutParams2.width;
-        //layoutParams2.height = screenHeight;
-        // remote_video_view.setLayoutParams(layoutParams2);
         img_screen.setLayoutParams(layoutParams2);
     }
 
@@ -281,6 +279,7 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
 
 
     /**
+     * .
      * 删除单个文件
      *
      * @param filePath 被删除文件的文件名
@@ -318,7 +317,6 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
     }
 
     public void deleteDirWihtFile(final File dir) {
-
         fixThreadPool.execute(new Runnable() {
             @Override
             public void run() {
@@ -477,11 +475,11 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
 //                                    handler.postDelayed(this, TIME);
 //                                } else {
                                 i++;
-                                screen.add(screenCaptureFile + i + ".png");
+                                screen.add(0, screenCaptureFile + i + ".png");
                                 screenname.add(String.valueOf(i));
                                 if (MAX < screen.size()) {
-                                    delete(screen.get(0));
-                                    screen.remove(0);
+                                    delete(screen.get(screen.size() - 1));
+                                    screen.remove(screen.size() - 1);
                                     screenname.remove(0);
                                 }
                                 saveBitmap(String.valueOf(i) + ".png", i);
@@ -500,11 +498,11 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
 //                                        handler.postDelayed(this, TIME);
 //                                    } else {
                                     i++;
-                                    screen.add(screenCaptureFile + i + ".png");
+                                    screen.add(0, screenCaptureFile + i + ".png");
                                     screenname.add(String.valueOf(i));
                                     if (MAX < screen.size()) {
                                         delete(screen.get(0));
-                                        screen.remove(0);
+                                        screen.remove(screen.size() - 1);
                                         screenname.remove(0);
                                     }
                                     saveBitmaplocal(String.valueOf(i) + ".png", i);
@@ -534,7 +532,6 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
 
     public void changeLocalData(final LocalStreamStatsReport localStats) {
     }
-
 
     private boolean ishasdate = false;
 
@@ -747,7 +744,6 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
         btn_4.setOnClickListener(this);
         btn_5.setOnClickListener(this);
 
-
         img_screen.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
@@ -759,11 +755,18 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
             @Override
             public void onClick(final View v) {
                 try {
-
-                    //设置适配器
-                    mAdapter = new HorizontalScrollViewAdapter(ConversationActivity.this, screen);
-                    mHorizontalScrollView.initDatas(mAdapter);
-
+                    if (mAdapter == null) {
+                        //设置适配器
+                        mAdapter = new HorizontalScrollViewAdapter(ConversationActivity.this, screen);
+                        mHorizontalScrollView.initDatas(mAdapter);
+                    } else {
+                        //List<String> data = mAdapter.getData();
+                        //data.clear();
+                        //data.addAll(screen);
+                        mAdapter.getData().clear();
+                        //mAdapter.getData().addAll(screen);
+                        mHorizontalScrollView.notifyAll();
+                    }
                     ispuse = true;
                     nowScreen = screen.size() - 1;
                     last = i;
@@ -773,6 +776,7 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
                         img_next.setVisibility(View.VISIBLE);
                         img_backon.setVisibility(View.VISIBLE);
                         img_nexton.setVisibility(View.VISIBLE);
+                        mHorizontalScrollView.setVisibility(View.VISIBLE);
                     }
                     isluzhicheck = sb_nofade.isChecked();
                     if (!isluzhicheck) {
@@ -815,7 +819,6 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
                         });
                     }
                 } catch (Exception e) {
-
                 }
             }
         });
@@ -827,12 +830,11 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
                 nowScreen = 0;
                 now = 0;
                 YANSHI = 100;
+                mHorizontalScrollView.setVisibility(View.GONE);
                 img_back.setVisibility(View.GONE);
                 img_next.setVisibility(View.GONE);
-
                 img_backon.setVisibility(View.GONE);
                 img_nexton.setVisibility(View.GONE);
-
                 remoteStream.detach();
                 localStream.detach();
                 remoteStream.attach(remote_video_view);
@@ -945,7 +947,6 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
             }
         });
 
-
         mHorizontalScrollView = (MyHorizontalScrollView) findViewById(R.id.id_horizontalScrollView);
         //添加滚动回调
         mHorizontalScrollView
@@ -953,15 +954,22 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
                     @Override
                     public void onCurrentImgChanged(int position,
                                                     View viewIndicator) {
-                        img_screen.setVisibility(View.VISIBLE);
-                        img_screen.setImageURI(Uri.parse("file://" + screen.get(position)));
-                        viewIndicator.setBackgroundColor(Color
-                                .parseColor("#AA024DA4"));
+                        if (screen.size() > 0) {
+                            try {
+                                img_screen.setVisibility(View.VISIBLE);
+                                img_screen.setImageURI(Uri.parse("file://" + screen.get(position)));
+                                viewIndicator.setBackgroundColor(Color
+                                        .parseColor("#AA024DA4"));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            } finally {
+
+                            }
+                        }
                     }
                 });
         //添加点击回调
         mHorizontalScrollView.setOnItemClickListener(new MyHorizontalScrollView.OnItemClickListener() {
-
             @Override
             public void onClick(View view, int position) {
                 img_screen.setVisibility(View.VISIBLE);
@@ -991,10 +999,8 @@ public class ConversationActivity extends AppCompatActivity implements View.OnCl
                 nowScreen = 0;
                 img_back.setVisibility(View.GONE);
                 img_next.setVisibility(View.GONE);
-
                 img_backon.setVisibility(View.GONE);
                 img_nexton.setVisibility(View.GONE);
-
                 remoteStream.detach();
                 localStream.detach();
                 remoteStream.attach(remote_video_view);

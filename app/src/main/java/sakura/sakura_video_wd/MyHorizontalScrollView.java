@@ -221,6 +221,7 @@ public class MyHorizontalScrollView extends HorizontalScrollView implements
         }
         //初始化第一屏幕的元素
         initFirstScreenChildren(mCountOneScreen);
+
     }
 
     /**

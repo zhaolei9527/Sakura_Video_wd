@@ -55,14 +55,16 @@ public class HorizontalScrollViewAdapter {
                     .findViewById(R.id.id_index_gallery_item_image);
             viewHolder.mText = (TextView) convertView
                     .findViewById(R.id.id_index_gallery_item_text);
-
             convertView.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) convertView.getTag();
         }
-        viewHolder.mImg.setImageURI(Uri.parse("file://" + mDatas.get(position)));
-        viewHolder.mText.setText("some info ");
-
+        try {
+            viewHolder.mImg.setImageURI(Uri.parse("file://" + mDatas.get(position)));
+            viewHolder.mText.setText("some info ");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return convertView;
     }
 
